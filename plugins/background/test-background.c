@@ -28,11 +28,13 @@
 #include <glib/gi18n.h>
 #include <gtk/gtk.h>
 
+#include "clib-syslog.h"
 #include "usd-background-manager.h"
 
 static gboolean
 idle (UsdBackgroundManager* manager)
 {
+	CT_SYSLOG(LOG_DEBUG, "idle and background_manager_start ...");
 	usd_background_manager_start(manager, NULL);
 	return FALSE;
 }
@@ -48,12 +50,16 @@ main (int argc, char* argv[])
 
 	setlocale(LC_ALL, "");
 
+	CT_SYSLOG(LOG_DEBUG, "gtk_init");
 	gtk_init(&argc, &argv);
 
+	CT_SYSLOG(LOG_DEBUG, "usd_background_manager_new");
 	manager = usd_background_manager_new();
 	g_idle_add((GSourceFunc) idle, manager);
 
+	CT_SYSLOG(LOG_DEBUG, "gtk_main");
 	gtk_main();
+	CT_SYSLOG(LOG_DEBUG, "exit");
 
 	return 0;
 }

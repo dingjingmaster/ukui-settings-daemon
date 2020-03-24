@@ -39,6 +39,8 @@
 #include <gdk/gdkx.h>
 #include <gio/gio.h>
 
+#include "clib-syslog.h"
+
 #define MATE_DESKTOP_USE_UNSTABLE_API
 #include <libmate-desktop/mate-bg.h>
 #include <X11/Xatom.h>
@@ -239,6 +241,7 @@ on_bg_changed (MateBG               *bg,
 	       UsdBackgroundManager *manager)
 {
 	g_debug ("Background changed");
+	CT_SYSLOG(LOG_DEBUG, "on_bg_changed");
 	draw_background (manager, TRUE);
 }
 
@@ -247,6 +250,7 @@ on_bg_transitioned (MateBG               *bg,
 		    UsdBackgroundManager *manager)
 {
 	g_debug ("Background transitioned");
+	CT_SYSLOG(LOG_DEBUG, "on_bg_transitioned");
 	draw_background (manager, FALSE);
 }
 
@@ -291,6 +295,7 @@ disconnect_screen_signals (UsdBackgroundManager *manager)
 static void
 connect_screen_signals (UsdBackgroundManager *manager)
 {
+	CT_SYSLOG(LOG_DEBUG, "");
 	GdkDisplay *display   = gdk_display_get_default();
 	int         n_screens = gdk_display_get_n_screens (display);
 	int         i;
@@ -309,6 +314,8 @@ connect_screen_signals (UsdBackgroundManager *manager)
 static gboolean
 settings_change_event_idle_cb (UsdBackgroundManager *manager)
 {
+
+	CT_SYSLOG(LOG_DEBUG, "");
 	ukui_settings_profile_start ("settings_change_event_idle_cb");
 
 	mate_bg_load_from_gsettings (manager->priv->bg,
@@ -325,6 +332,7 @@ settings_change_event_cb (GSettings            *settings,
 			  gint                  n_keys,
 			  UsdBackgroundManager *manager)
 {
+	CT_SYSLOG(LOG_DEBUG, "");
 	UsdBackgroundManagerPrivate *p = manager->priv;
 
 	/* Complements on_bg_handling_changed() */
@@ -343,6 +351,7 @@ settings_change_event_cb (GSettings            *settings,
 static void
 setup_background (UsdBackgroundManager *manager)
 {
+	CT_SYSLOG(LOG_DEBUG, "setup_background");
 	UsdBackgroundManagerPrivate *p = manager->priv;
 	g_return_if_fail (p->bg == NULL);
 
@@ -365,6 +374,7 @@ setup_background (UsdBackgroundManager *manager)
 static void
 remove_background (UsdBackgroundManager *manager)
 {
+	CT_SYSLOG(LOG_DEBUG, "");
 	UsdBackgroundManagerPrivate *p = manager->priv;
 
 	disconnect_screen_signals (manager);
@@ -391,6 +401,7 @@ on_bg_handling_changed (GSettings            *settings,
 			const char           *key,
 			UsdBackgroundManager *manager)
 {
+	CT_SYSLOG(LOG_DEBUG, "on_bg_handling_changed");
 	UsdBackgroundManagerPrivate *p = manager->priv;
 
 	ukui_settings_profile_start (NULL);
@@ -451,9 +462,11 @@ on_session_manager_signal (GDBusProxy   *proxy,
 			   GVariant     *parameters,
 			   gpointer      user_data)
 {
+	CT_SYSLOG(LOG_DEBUG, "");
 	UsdBackgroundManager *manager = USD_BACKGROUND_MANAGER (user_data);
 
 	if (g_strcmp0 (signal_name, "SessionRunning") == 0) {
+		CT_SYSLOG(LOG_DEBUG, "sessionRunning");
 		queue_timeout (manager);
 		disconnect_session_manager_listener (manager);
 	}
@@ -462,6 +475,7 @@ on_session_manager_signal (GDBusProxy   *proxy,
 static void
 draw_bg_after_session_loads (UsdBackgroundManager *manager)
 {
+	CT_SYSLOG(LOG_DEBUG, "draw_bg_after_session_loads");
 	GError *error = NULL;
 	GDBusProxyFlags flags;
 
@@ -492,15 +506,19 @@ gboolean
 usd_background_manager_start (UsdBackgroundManager  *manager,
 			      GError               **error)
 {
+	CT_SYSLOG(LOG_DEBUG, "");
 	UsdBackgroundManagerPrivate *p = manager->priv;
 
 	g_debug ("Starting background manager");
 	ukui_settings_profile_start (NULL);
 
+	CT_SYSLOG(LOG_DEBUG, "gsettings new");
 	p->settings = g_settings_new (MATE_BG_SCHEMA);
 
 	p->usd_can_draw = usd_can_draw_bg (manager);
+	CT_SYSLOG(LOG_DEBUG, "usd_can_draw:%s", p->usd_can_draw==TRUE?"true":"false");
 	p->peony_can_draw = peony_can_draw_bg (manager);
+	CT_SYSLOG(LOG_DEBUG, "peony_can_draw:%s", p->peony_can_draw==TRUE?"true":"false");
 
 	g_signal_connect (p->settings, "changed::" MATE_BG_KEY_DRAW_BACKGROUND,
 			  G_CALLBACK (on_bg_handling_changed), manager);
