@@ -22,5 +22,13 @@ include($$PWD/data/data.pri)
 OTHER_FILES += \
     $$PWD/LICENSE \
     $$PWD/README.md \
-    $$PWD/install.sh
+    $$PWD/install.sh \
+    $$PWD/debian/watch \
+    $$PWD/debian/rules \
+    $$PWD/debian/compat \
+    $$PWD/debian/control \
+    $$PWD/debian/changelog \
+    $$PWD/debian/copyright \
+    $$PWD/debian/source/format \
+    $$PWD/debian/source/local-options
 

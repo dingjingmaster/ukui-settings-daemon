@@ -25,8 +25,6 @@ HEADERS += \
 DESTDIR = $$PWD
 
 background_lib.path = /usr/local/lib/ukui-settings-daemon/
-background_lib.files += \
-    $$PWD/libbackground.prl \
-    $$PWD/libbackground.so \
+background_lib.files += $$PWD/libbackground.so
 
 INSTALLS += background_lib
