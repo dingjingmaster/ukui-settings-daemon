@@ -17,12 +17,12 @@ Architecture: any
 Depends: mate-desktop-common (>= 1.18),
          ukui-polkit,
          x11-xserver-utils,
-	 	 libqt5gui5,
-	 	 libqt5dbus5,
-	 	 libqt5widgets5,
-	 	 libqt5x11extras5,
-	 	 ${misc:Depends},
-	 	 ${shlibs:Depends}
+         libqt5gui5,
+         libqt5dbus5,
+         libqt5widgets5,
+         libqt5x11extras5,
+         ${misc:Depends},
+         ${shlibs:Depends}
 Description: daemon handling the UKUI session settings
  This package contains the daemon which is responsible for setting the
  various parameters of a UKUI session and the applications that run

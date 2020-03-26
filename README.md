@@ -6,6 +6,12 @@
 2. 修改 /etc/apt/sources.list, 把 deb-src 之前的注释去掉，并执行 apt-get update
 2. 执行 apt build-dep ukui-settings-daemon 会安装项目所有依赖
 
+### 关闭daemon及其插件
+
+```shell
+dbus-send --session --dest=org.ukui.SettingsDaemon --type=method_call /org/ukui/SettingsDaemon org.ukui.SettingsDaemon.managerStop
+```
+
 ### 项目运行
 
 1. 项目打包

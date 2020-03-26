@@ -36,7 +36,8 @@ HEADERS += \
         $$PWD/global.h
 
 OTHER_FILES += \
-        $$PWD/.gitignore
+        $$PWD/.gitignore \
+        $$PWD/ukui-settings-daemon.xml
 
 DESTDIR = $$PWD/
 

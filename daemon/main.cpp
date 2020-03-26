@@ -61,6 +61,7 @@ static void parse_args (int argc, char *argv[])
     for (int i = 1; i < argc; ++i) {
         if (0 == QString::compare(QString(argv[i]).trimmed(), QString("--replace"))) {
             replace = true;
+            CT_SYSLOG(LOG_WARNING, "set replace running daemon");
         } else if (0 == QString::compare(QString(argv[i]).trimmed(), QString("--daemon"))) {
             no_daemon = false;
         } else {

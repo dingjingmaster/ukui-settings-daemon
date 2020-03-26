@@ -28,13 +28,14 @@ private:
     PluginManager(PluginManager&)=delete;
     PluginManager& operator= (const PluginManager&)=delete;
 
-Q_SIGNALS:
-    void exit ();
-
 public Q_SLOTS:
     void managerStop ();
     bool managerStart ();
     bool managerAwake ();
+
+Q_SIGNALS:
+    void pluginActivity(QString);
+    void pluginDeactivity(QString);
 
 private:
     static QList<PluginInfo*>*      mPlugin;

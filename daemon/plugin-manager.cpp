@@ -123,6 +123,9 @@ void PluginManager::managerStop()
         delete plugin;
     }
 
+    QDBusConnection bus = QDBusConnection::sessionBus();
+    bus.unregisterObject(UKUI_SETTINGS_DAEMON_DBUS_PATH, QDBusConnection::UnregisterTree);
+    bus.unregisterService(UKUI_SETTINGS_DAEMON_DBUS_NAME);
     // exit main event loop
     QCoreApplication::exit();
 }
@@ -151,6 +154,7 @@ static bool register_manager(PluginManager& pm)
     QString ukuiDaemonBusName = UKUI_SETTINGS_DAEMON_DBUS_NAME;
 
     if (QDBusConnection::sessionBus().interface()->isServiceRegistered(ukuiDaemonBusName)) {
+        CT_SYSLOG(LOG_WARNING, "The manager has been register on dbus!");
         return false;
     }
 
@@ -160,7 +164,8 @@ static bool register_manager(PluginManager& pm)
         return false;
     }
 
-    if (!bus.registerObject(UKUI_SETTINGS_DAEMON_DBUS_PATH, (QObject*)&pm, QDBusConnection::ExportAllSlots)) {
+    if (!bus.registerObject(UKUI_SETTINGS_DAEMON_DBUS_PATH, UKUI_SETTINGS_DAEMON_DBUS_NAME,
+                            (QObject*)&pm, QDBusConnection::ExportNonScriptableSlots|QDBusConnection::ExportNonScriptableSignals)) {
         CT_SYSLOG(LOG_ERR, "regist settings manager error: '%s'", bus.lastError().message().toUtf8().data());
         return false;
     }
