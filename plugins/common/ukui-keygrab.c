@@ -22,14 +22,6 @@
 
 #include "config.h"
 
-#include <gdk/gdk.h>
-#include <gdk/gdkx.h>
-#ifdef HAVE_X11_EXTENSIONS_XKB_H
-#include <X11/XKBlib.h>
-#include <X11/extensions/XKB.h>
-#include <gdk/gdkkeysyms.h>
-#endif
-
 #include "eggaccelerators.h"
 
 #include "ukui-keygrab.h"

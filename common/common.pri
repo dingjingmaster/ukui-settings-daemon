@@ -14,7 +14,10 @@ SOURCES += \
     $$PWD/QGSettings/qgsettings.cpp
 
 HEADERS += \
+    $$PWD/global.h \
     $$PWD/clib-syslog.h \
-    $$PWD/plugin-interface.h\
-    $$PWD/QGSettings/qconftype.h\
+    $$PWD/plugin-interface.h \
+    $$PWD/QGSettings/QGSettings \
+    $$PWD/QGSettings/qconftype.h \
+    $$PWD/QGSettings/QGSettings.h \
     $$PWD/QGSettings/qgsettings.h

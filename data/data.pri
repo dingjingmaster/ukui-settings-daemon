@@ -1,4 +1,5 @@
 DISTFILES += \
+    $$PWD/media-keys.ukui-settings-plugin_bak \
     $$PWD/ukui-settings-daemon.desktop \
     $$PWD/org.ukui.SettingsDaemon.service \
     \
@@ -7,7 +8,6 @@ DISTFILES += \
     $$PWD/sound.ukui-settings-plugin_bak \
     $$PWD/mouse.ukui-settings-plugin_bak \
     $$PWD/xrandr.ukui-settings-plugin_bak \
-    $$PWD/media-keys.ukui-settings-plugin \
     $$PWD/background.ukui-settings-plugin \
     $$PWD/a11y-settings.ukui-settings-plugin \
     $$PWD/clipboard.ukui-settings-plugin_bak \

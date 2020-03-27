@@ -20,12 +20,6 @@
 
 #include "config.h"
 
-#include <gdk/gdk.h>
-#include <gdk/gdkx.h>
-
-#include <sys/types.h>
-#include <X11/Xatom.h>
-
 #include "usd-input-helper.h"
 
 gboolean

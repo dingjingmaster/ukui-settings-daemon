@@ -151,9 +151,7 @@ bool is_schema (QString& schema)
 
 static bool register_manager(PluginManager& pm)
 {
-    QString ukuiDaemonBusName = UKUI_SETTINGS_DAEMON_DBUS_NAME;
-
-    if (QDBusConnection::sessionBus().interface()->isServiceRegistered(ukuiDaemonBusName)) {
+    if (QDBusConnection::sessionBus().interface()->isServiceRegistered(UKUI_SETTINGS_DAEMON_DBUS_NAME)) {
         CT_SYSLOG(LOG_WARNING, "The manager has been register on dbus!");
         return false;
     }

@@ -39,6 +39,8 @@ public:
 
     bool managerStart ();
     bool managerStop ();
+
+private:
     void run() override;
 
 private:

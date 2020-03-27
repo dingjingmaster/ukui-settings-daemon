@@ -1,0 +1,15 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="org.ukui.SettingsDaemon.MediaKeys">
+    <signal name="mediaPlayerKeyPressed">
+      <arg name="application" type="s" direction="out"/>
+      <arg name="key" type="s" direction="out"/>
+    </signal>
+    <method name="grabMediaPlayerKeys">
+      <arg type="b" direction="out"/>
+    </method>
+    <method name="releaseMediaPlayerKeys">
+      <arg type="b" direction="out"/>
+    </method>
+  </interface>
+</node>

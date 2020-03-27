@@ -20,6 +20,14 @@
 #ifndef __USD_COMMON_KEYGRAB_H
 #define __USD_COMMON_KEYGRAB_H
 
+#include <gdk/gdk.h>
+#include <gdk/gdkx.h>
+#ifdef HAVE_X11_EXTENSIONS_XKB_H
+#include <X11/XKBlib.h>
+#include <X11/extensions/XKB.h>
+#include <gdk/gdkkeysyms.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -38,11 +46,9 @@ void	        grab_key_unsafe	(Key     *key,
 		        	 gboolean grab,
 			         GSList  *screens);
 
-gboolean        match_key       (Key     *key,
-                                 XEvent  *event);
+gboolean        match_key       (Key     *key, XEvent  *event);
 
-gboolean        key_uses_keycode (const Key *key,
-                                  guint keycode);
+gboolean        key_uses_keycode (const Key *key, guint keycode);
 
 #ifdef __cplusplus
 }
