@@ -49,6 +49,8 @@ Q_SIGNALS:
 
 private:
     friend bool register_manager (MediakeyManager&);
+    friend void dialog_init (MediakeyManager* manager);
+    friend void dialog_show (MediakeyManager* manager);
     friend void do_eject_action (MediakeyManager* manager);
     friend void do_touchpad_action (MediakeyManager* manager);
     friend gboolean do_action (MediakeyManager* manager, int type);

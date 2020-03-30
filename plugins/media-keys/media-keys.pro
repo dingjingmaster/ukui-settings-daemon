@@ -20,12 +20,14 @@ PKGCONFIG += \
 SOURCES += \
     $$PWD/mediakey-plugin.cpp \
     $$PWD/mediakey-manager.cpp \
-    $$PWD/manager-interface.cpp
+    $$PWD/manager-interface.cpp \
+    mediakey-window.cpp
 
 HEADERS += \
     $$PWD/mediakey-plugin.h \
     $$PWD/mediakey-manager.h \
-    $$PWD/manager-interface.h
+    $$PWD/manager-interface.h \
+    mediakey-window.h
 
 DESTDIR = $$PWD/
 

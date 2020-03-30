@@ -110,7 +110,9 @@ void do_media_action (MediakeyManager*);
 gboolean supports_xinput_devices (void);
 bool register_manager (MediakeyManager&);
 char* get_term_command (MediakeyManager*);
+void dialog_show (MediakeyManager* manager);
 void do_magnifier_action (MediakeyManager*);
+void dialog_init (MediakeyManager* manager);
 gboolean match_key (Key* key, XEvent* event);
 void do_screenreader_action (MediakeyManager*);
 void do_eject_action (MediakeyManager* manager);
@@ -722,4 +724,95 @@ gboolean device_has_property (XDevice* device, const char* property_name)
 
     gdk_error_trap_pop_ignored ();
     return FALSE;
+}
+
+void dialog_init (MediakeyManager* manager)
+{
+    if (manager->mDialog != NULL
+            && !usd_osd_window_is_valid (USD_OSD_WINDOW (manager->mDialog))) {
+        gtk_widget_destroy (manager->mDialog);
+        manager->mDialog = NULL;
+    }
+
+    if (manager->mDialog == NULL) {
+        manager->mDialog = usd_media_keys_window_new ();
+    }
+}
+
+void dialog_show (MediakeyManager* manager)
+{
+    int            orig_w;
+    int            orig_h;
+    int            screen_w;
+    int            screen_h;
+    int            x;
+    int            y;
+    GdkDisplay *display;
+    GdkDeviceManager *device_manager;
+    GdkDevice *pointer;
+    int            pointer_x;
+    int            pointer_y;
+    GtkRequisition win_req;
+    GdkScreen     *pointer_screen;
+    GdkRectangle   geometry;
+    int            monitor;
+
+    gtk_window_set_screen (GTK_WINDOW (manager->mDialog),
+                           manager->mCurrentScreen);
+
+    /* Return if OSD notifications are disabled */
+    if (!g_settings_get_boolean (manager->mSettings, "enable-osd"))
+            return;
+
+    /*
+     * get the window size
+     * if the window hasn't been mapped, it doesn't necessarily
+     * know its true size, yet, so we need to jump through hoops
+     */
+    gtk_window_get_default_size (GTK_WINDOW (manager->mDialog), &orig_w, &orig_h);
+    gtk_widget_get_preferred_size (manager->mDialog, NULL, &win_req);
+
+    if (win_req.width > orig_w) {
+            orig_w = win_req.width;
+    }
+    if (win_req.height > orig_h) {
+            orig_h = win_req.height;
+    }
+
+    pointer_screen = NULL;
+    display = gdk_screen_get_display (manager->mCurrentScreen);
+    device_manager = gdk_display_get_device_manager (display);
+    pointer = gdk_device_manager_get_client_pointer (device_manager);
+
+    gdk_device_get_position (pointer,
+                             &pointer_screen,
+                             &pointer_x,
+                             &pointer_y);
+
+    if (pointer_screen != manager->mCurrentScreen) {
+            /* The pointer isn't on the current screen, so just
+             * assume the default monitor
+             */
+            monitor = 0;
+    } else {
+            monitor = gdk_screen_get_monitor_at_point (manager->mCurrentScreen,
+                                                       pointer_x,
+                                                       pointer_y);
+    }
+
+    gdk_screen_get_monitor_geometry (manager->mCurrentScreen,
+                                     monitor,
+                                     &geometry);
+
+    screen_w = geometry.width;
+    screen_h = geometry.height;
+
+    x = ((screen_w - orig_w) / 2) + geometry.x;
+    y = geometry.y + (screen_h / 2) + (screen_h / 2 - orig_h) / 2;
+
+    gtk_window_move (GTK_WINDOW (manager->mDialog), x, y);
+
+    gtk_widget_show (manager->mDialog);
+
+    gdk_display_sync (gdk_screen_get_display (manager->mCurrentScreen));
 }
