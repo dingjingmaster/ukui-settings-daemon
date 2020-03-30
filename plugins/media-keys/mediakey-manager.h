@@ -1,6 +1,8 @@
 #ifndef MEDIAKEYMANAGER_H
 #define MEDIAKEYMANAGER_H
 
+#include "mediakey-window.h"
+
 #include <QObject>
 #include <QThread>
 #include <QDBusConnection>
@@ -41,8 +43,8 @@ private:
     explicit MediakeyManager(MediakeyManager&) = delete;
 
 public Q_SLOTS:
-    bool grabMediaPlayerKeys();
-    bool releaseMediaPlayerKeys();
+    int grabMediaPlayerKeys();              // return code true or false
+    int releaseMediaPlayerKeys();           // return code true or false
 
 Q_SIGNALS:
     void mediaPlayerKeyPressed(QString application, QString key);
@@ -60,7 +62,7 @@ private:
 
 private:
     bool                            mExit;
-    GtkWidget*                      mDialog;
+    MediakeyWindow*                 mDialog;
     QGSettings*                     mSettings;
     GVolumeMonitor*                 mVolumeMonitor;             // FIXME://qt version
 

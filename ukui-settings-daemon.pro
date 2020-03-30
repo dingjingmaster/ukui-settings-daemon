@@ -13,7 +13,7 @@ SUBDIRS += \
 #    $$PWD/plugins/xsettings/xsettings.pro \
     $$PWD/plugins/clipboard/clipboard.pro \
     $$PWD/plugins/background/background.pro \
-#    $$PWD/plugins/media-keys/media-keys.pro \
+    $$PWD/plugins/media-keys/media-keys.pro \
     $$PWD/plugins/typing-break/typing-break.pro \
     $$PWD/plugins/a11y-settings/a11y-settings.pro \
     $$PWD/daemon/daemon.pro \

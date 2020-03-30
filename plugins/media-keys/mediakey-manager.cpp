@@ -1,108 +1,107 @@
 #include "mediakey-manager.h"
 
-#include "global.h"
-
 #include <gio/gio.h>
 #include <X11/Xatom.h>
 #include <X11/extensions/XInput.h>
 #include <X11/extensions/XIproto.h>
 
-#include <QDebug>
 #include <QDBusError>
 #include <QDBusConnectionInterface>
+
+#include "global.h"
 
 #define NO_SCORE                0
 #define SCORE_CAN_EJECT         50
 #define SCORE_HAS_MEDIA         100
 
 typedef struct {
-    guint       keysym;
-    guint       state;
-    guint*      keycodes;
+    guint           keysym;
+    guint           state;
+    guint*          keycodes;
 } Key;
 
 struct _media_player {
-    char   *application;
-    guint32 time;
+    char*           application;
+    guint32         time;
 };
 
 enum {
-        TOUCHPAD_KEY,
-        MUTE_KEY,
-        VOLUME_DOWN_KEY,
-        VOLUME_UP_KEY,
-        POWER_KEY,
-        EJECT_KEY,
-        HOME_KEY,
-        MEDIA_KEY,
-        CALCULATOR_KEY,
-        SEARCH_KEY,
-        EMAIL_KEY,
-        SCREENSAVER_KEY,
-        HELP_KEY,
-        WWW_KEY,
-        PLAY_KEY,
-        PAUSE_KEY,
-        STOP_KEY,
-        PREVIOUS_KEY,
-        NEXT_KEY,
-        REWIND_KEY,
-        FORWARD_KEY,
-        REPEAT_KEY,
-        RANDOM_KEY,
-        MAGNIFIER_KEY,
-        SCREENREADER_KEY,
-        SETTINGS_KEY,
-        FILE_MANAGER_KEY,
-        ON_SCREEN_KEYBOARD_KEY,
-        LOGOUT_KEY,
-        TERMINAL_KEY,
-        SCREENSHOT_KEY,
-        WINDOW_SCREENSHOT_KEY,
-        AREA_SCREENSHOT_KEY,
-        HANDLED_KEYS,
+    TOUCHPAD_KEY,
+    MUTE_KEY,
+    VOLUME_DOWN_KEY,
+    VOLUME_UP_KEY,
+    POWER_KEY,
+    EJECT_KEY,
+    HOME_KEY,
+    MEDIA_KEY,
+    CALCULATOR_KEY,
+    SEARCH_KEY,
+    EMAIL_KEY,
+    SCREENSAVER_KEY,
+    HELP_KEY,
+    WWW_KEY,
+    PLAY_KEY,
+    PAUSE_KEY,
+    STOP_KEY,
+    PREVIOUS_KEY,
+    NEXT_KEY,
+    REWIND_KEY,
+    FORWARD_KEY,
+    REPEAT_KEY,
+    RANDOM_KEY,
+    MAGNIFIER_KEY,
+    SCREENREADER_KEY,
+    SETTINGS_KEY,
+    FILE_MANAGER_KEY,
+    ON_SCREEN_KEYBOARD_KEY,
+    LOGOUT_KEY,
+    TERMINAL_KEY,
+    SCREENSHOT_KEY,
+    WINDOW_SCREENSHOT_KEY,
+    AREA_SCREENSHOT_KEY,
+    HANDLED_KEYS,
 };
 
 static struct {
-        int key_type;
-        const char *settings_key;
-        const char *hard_coded;
-        Key *key;
+    int key_type;
+    const char *settings_key;
+    const char *hard_coded;
+    Key *key;
 } keys[HANDLED_KEYS] = {
-        { TOUCHPAD_KEY, "touchpad", NULL, NULL },
-        { MUTE_KEY, "volume-mute", NULL, NULL },
-        { VOLUME_DOWN_KEY, "volume-down", NULL, NULL },
-        { VOLUME_UP_KEY, "volume-up", NULL, NULL },
-        { POWER_KEY, "power", NULL, NULL },
-        { EJECT_KEY, "eject", NULL, NULL },
-        { HOME_KEY, "home", NULL, NULL },
-        { MEDIA_KEY, "media", NULL, NULL },
-        { CALCULATOR_KEY, "calculator", NULL, NULL },
-        { SEARCH_KEY, "search", NULL, NULL },
-        { EMAIL_KEY, "email", NULL, NULL },
-        { SCREENSAVER_KEY, "screensaver", NULL, NULL },
-        { SETTINGS_KEY, "ukui-control-center", NULL, NULL},
-        { FILE_MANAGER_KEY, "peony-qt", NULL, NULL},
-        { HELP_KEY, "help", NULL, NULL },
-        { WWW_KEY, "www", NULL, NULL },
-        { PLAY_KEY, "play", NULL, NULL },
-        { PAUSE_KEY, "pause", NULL, NULL },
-        { STOP_KEY, "stop", NULL, NULL },
-        { PREVIOUS_KEY, "previous", NULL, NULL },
-        { NEXT_KEY, "next", NULL, NULL },
-        /* Those are not configurable in the UI */
-        { REWIND_KEY, NULL, "XF86AudioRewind", NULL },
-        { FORWARD_KEY, NULL, "XF86AudioForward", NULL },
-        { REPEAT_KEY, NULL, "XF86AudioRepeat", NULL },
-        { RANDOM_KEY, NULL, "XF86AudioRandomPlay", NULL },
-        { MAGNIFIER_KEY, "magnifier", NULL, NULL },
-        { SCREENREADER_KEY, "screenreader", NULL, NULL },
-        { ON_SCREEN_KEYBOARD_KEY, "on-screen-keyboard", NULL, NULL },
-        { LOGOUT_KEY, "logout", NULL, NULL },
-        { TERMINAL_KEY, "terminal", NULL, NULL },
-        { SCREENSHOT_KEY, "screenshot", NULL, NULL },
-        { WINDOW_SCREENSHOT_KEY, "window-screenshot", NULL, NULL },
-        { AREA_SCREENSHOT_KEY, "area-screenshot", NULL, NULL },
+    { TOUCHPAD_KEY, "touchpad", NULL, NULL },
+    { MUTE_KEY, "volume-mute", NULL, NULL },
+    { VOLUME_DOWN_KEY, "volume-down", NULL, NULL },
+    { VOLUME_UP_KEY, "volume-up", NULL, NULL },
+    { POWER_KEY, "power", NULL, NULL },
+    { EJECT_KEY, "eject", NULL, NULL },
+    { HOME_KEY, "home", NULL, NULL },
+    { MEDIA_KEY, "media", NULL, NULL },
+    { CALCULATOR_KEY, "calculator", NULL, NULL },
+    { SEARCH_KEY, "search", NULL, NULL },
+    { EMAIL_KEY, "email", NULL, NULL },
+    { SCREENSAVER_KEY, "screensaver", NULL, NULL },
+    { SETTINGS_KEY, "ukui-control-center", NULL, NULL},
+    { FILE_MANAGER_KEY, "peony-qt", NULL, NULL},
+    { HELP_KEY, "help", NULL, NULL },
+    { WWW_KEY, "www", NULL, NULL },
+    { PLAY_KEY, "play", NULL, NULL },
+    { PAUSE_KEY, "pause", NULL, NULL },
+    { STOP_KEY, "stop", NULL, NULL },
+    { PREVIOUS_KEY, "previous", NULL, NULL },
+    { NEXT_KEY, "next", NULL, NULL },
+    /* Those are not configurable in the UI */
+    { REWIND_KEY, NULL, "XF86AudioRewind", NULL },
+    { FORWARD_KEY, NULL, "XF86AudioForward", NULL },
+    { REPEAT_KEY, NULL, "XF86AudioRepeat", NULL },
+    { RANDOM_KEY, NULL, "XF86AudioRandomPlay", NULL },
+    { MAGNIFIER_KEY, "magnifier", NULL, NULL },
+    { SCREENREADER_KEY, "screenreader", NULL, NULL },
+    { ON_SCREEN_KEYBOARD_KEY, "on-screen-keyboard", NULL, NULL },
+    { LOGOUT_KEY, "logout", NULL, NULL },
+    { TERMINAL_KEY, "terminal", NULL, NULL },
+    { SCREENSHOT_KEY, "screenshot", NULL, NULL },
+    { WINDOW_SCREENSHOT_KEY, "window-screenshot", NULL, NULL },
+    { AREA_SCREENSHOT_KEY, "area-screenshot", NULL, NULL },
 };
 
 gboolean touchpad_is_present (void);
@@ -189,14 +188,14 @@ MediakeyManager::MediakeyManager(QObject *parent) : QThread(parent)
     mExit = false;
 }
 
-bool MediakeyManager::grabMediaPlayerKeys()
+int MediakeyManager::grabMediaPlayerKeys()
 {
-
+    return false;
 }
 
-bool MediakeyManager::releaseMediaPlayerKeys()
+int MediakeyManager::releaseMediaPlayerKeys()
 {
-
+    return false;
 }
 
 bool register_manager (MediakeyManager& mm)
@@ -410,13 +409,12 @@ void do_touchpad_action (MediakeyManager* manager)
 
     if (touchpad_is_present () == FALSE) {
         dialog_init (manager);
-        usd_media_keys_window_set_action_custom (manager->mDialog, "touchpad-disabled", FALSE);
+        manager->mDialog->setActionCustom("touchpad-disabled", false);
         return;
     }
 
     dialog_init (manager);
-    usd_media_keys_window_set_action_custom (manager->mDialog,
-                      (!state) ? "touchpad-enabled" : "touchpad-disabled", FALSE);
+    manager->mDialog->setActionCustom((!state) ? "touchpad-enabled" : "touchpad-disabled", false);
     dialog_show (manager);
 
     g_settings_set_boolean (settings, TOUCHPAD_ENABLED_KEY, !state);
@@ -462,7 +460,7 @@ void do_eject_action (MediakeyManager* manager)
 
     /* Show the dialogue */
     dialog_init (manager);
-    usd_media_keys_window_set_action_custom (USD_MEDIA_KEYS_WINDOW (manager->mDialog), "media-eject", FALSE);
+    manager->mDialog->setActionCustom("media-eject", false);
     dialog_show (manager);
 
     /* Clean up the drive selection and exit if no suitable drives are found */
@@ -472,8 +470,7 @@ void do_eject_action (MediakeyManager* manager)
     if (fav_drive == NULL) return;
 
     /* Eject! */
-    g_drive_eject_with_operation (fav_drive, G_MOUNT_UNMOUNT_FORCE, NULL, NULL,
-                                  (GAsyncReadyCallback) do_eject_action_cb, manager);
+    g_drive_eject_with_operation (fav_drive, G_MOUNT_UNMOUNT_FORCE, NULL, NULL, (GAsyncReadyCallback) do_eject_action_cb, manager);
     g_object_unref (fav_drive);
 }
 
@@ -728,41 +725,39 @@ gboolean device_has_property (XDevice* device, const char* property_name)
 
 void dialog_init (MediakeyManager* manager)
 {
-    if (manager->mDialog != NULL
-            && !usd_osd_window_is_valid (USD_OSD_WINDOW (manager->mDialog))) {
-        gtk_widget_destroy (manager->mDialog);
+    if (manager->mDialog != NULL && manager->mDialog->isValid()) {
+        delete manager->mDialog;
         manager->mDialog = NULL;
     }
 
     if (manager->mDialog == NULL) {
-        manager->mDialog = usd_media_keys_window_new ();
+        manager->mDialog = new MediakeyWindow ();
     }
 }
 
 void dialog_show (MediakeyManager* manager)
 {
-    int            orig_w;
-    int            orig_h;
-    int            screen_w;
-    int            screen_h;
-    int            x;
-    int            y;
-    GdkDisplay *display;
-    GdkDeviceManager *device_manager;
-    GdkDevice *pointer;
-    int            pointer_x;
-    int            pointer_y;
-    GtkRequisition win_req;
-    GdkScreen     *pointer_screen;
-    GdkRectangle   geometry;
-    int            monitor;
+    int                     orig_w;
+    int                     orig_h;
+    int                     screen_w;
+    int                     screen_h;
+    int                     x;
+    int                     y;
+    GdkDisplay*             display;
+    GdkDeviceManager*       device_manager;
+    GdkDevice*              pointer;
+    int                     pointer_x;
+    int                     pointer_y;
+    QSize                   winReq;
+    GdkScreen*              pointer_screen;
+    GdkRectangle            geometry;
+    int                     monitor;
 
-    gtk_window_set_screen (GTK_WINDOW (manager->mDialog),
-                           manager->mCurrentScreen);
+    gtk_window_set_screen (GTK_WINDOW (manager->mDialog), manager->mCurrentScreen);
 
     /* Return if OSD notifications are disabled */
-    if (!g_settings_get_boolean (manager->mSettings, "enable-osd"))
-            return;
+    if (!manager->mSettings->get("enable-osd").toBool())
+        return;
 
     /*
      * get the window size
@@ -770,13 +765,16 @@ void dialog_show (MediakeyManager* manager)
      * know its true size, yet, so we need to jump through hoops
      */
     gtk_window_get_default_size (GTK_WINDOW (manager->mDialog), &orig_w, &orig_h);
-    gtk_widget_get_preferred_size (manager->mDialog, NULL, &win_req);
 
-    if (win_req.width > orig_w) {
-            orig_w = win_req.width;
+    //
+    winReq.setWidth(manager->mDialog->width());
+    winReq.setHeight(manager->mDialog->height());
+
+    if (winReq.width() > orig_w) {
+        orig_w = winReq.width();
     }
-    if (win_req.height > orig_h) {
-            orig_h = win_req.height;
+    if (winReq.height() > orig_h) {
+            orig_h = winReq.height();
     }
 
     pointer_screen = NULL;
@@ -784,25 +782,18 @@ void dialog_show (MediakeyManager* manager)
     device_manager = gdk_display_get_device_manager (display);
     pointer = gdk_device_manager_get_client_pointer (device_manager);
 
-    gdk_device_get_position (pointer,
-                             &pointer_screen,
-                             &pointer_x,
-                             &pointer_y);
+    gdk_device_get_position (pointer, &pointer_screen, &pointer_x, &pointer_y);
 
     if (pointer_screen != manager->mCurrentScreen) {
-            /* The pointer isn't on the current screen, so just
-             * assume the default monitor
-             */
-            monitor = 0;
+        /* The pointer isn't on the current screen, so just
+         * assume the default monitor
+         */
+        monitor = 0;
     } else {
-            monitor = gdk_screen_get_monitor_at_point (manager->mCurrentScreen,
-                                                       pointer_x,
-                                                       pointer_y);
+        monitor = gdk_screen_get_monitor_at_point (manager->mCurrentScreen, pointer_x, pointer_y);
     }
 
-    gdk_screen_get_monitor_geometry (manager->mCurrentScreen,
-                                     monitor,
-                                     &geometry);
+    gdk_screen_get_monitor_geometry (manager->mCurrentScreen, monitor, &geometry);
 
     screen_w = geometry.width;
     screen_h = geometry.height;
@@ -812,7 +803,7 @@ void dialog_show (MediakeyManager* manager)
 
     gtk_window_move (GTK_WINDOW (manager->mDialog), x, y);
 
-    gtk_widget_show (manager->mDialog);
+    manager->mDialog->show();
 
     gdk_display_sync (gdk_screen_get_display (manager->mCurrentScreen));
 }

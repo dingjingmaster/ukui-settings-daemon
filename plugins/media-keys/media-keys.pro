@@ -5,14 +5,14 @@ QT += dbus widgets
 CONFIG += no_keywords c++11 plugin link_pkgconfig
 CONFIG -= app_bundle
 
-DEFINES += QT_DEPRECATED_WARNINGS
-
+include($$PWD/../base/base.pri)
 include($$PWD/../../common/common.pri)
 
 INCLUDEPATH += \
-    $$PWD/../common/
+    $$PWD/../base/
 
 PKGCONFIG += \
+    atk \
     gdk-3.0 \
     gobject-2.0 \
     dbus-glib-1

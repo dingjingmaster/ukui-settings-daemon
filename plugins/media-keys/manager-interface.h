@@ -36,13 +36,13 @@ public:
     ~MediaManagerDBus();
 
 public Q_SLOTS: // METHODS
-    inline QDBusPendingReply<bool> grabMediaPlayerKeys()
+    inline QDBusPendingReply<int> grabMediaPlayerKeys()
     {
         QList<QVariant> argumentList;
         return asyncCallWithArgumentList(QStringLiteral("grabMediaPlayerKeys"), argumentList);
     }
 
-    inline QDBusPendingReply<bool> releaseMediaPlayerKeys()
+    inline QDBusPendingReply<int> releaseMediaPlayerKeys()
     {
         QList<QVariant> argumentList;
         return asyncCallWithArgumentList(QStringLiteral("releaseMediaPlayerKeys"), argumentList);
@@ -51,5 +51,4 @@ public Q_SLOTS: // METHODS
 Q_SIGNALS: // SIGNALS
     void mediaPlayerKeyPressed(const QString &application, const QString &key);
 };
-
 #endif

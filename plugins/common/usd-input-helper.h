@@ -20,14 +20,10 @@
 #ifndef __USD_INPUT_HELPER_H
 #define __USD_INPUT_HELPER_H
 
-//G_BEGIN_DECLS
+G_BEGIN_DECLS
 
 #include <glib.h>
-#include <gdk/gdk.h>
-#include <gdk/gdkx.h>
 
-#include <sys/types.h>
-#include <X11/Xatom.h>
 #include <X11/extensions/XInput.h>
 #include <X11/extensions/XIproto.h>
 
@@ -35,6 +31,6 @@ gboolean  supports_xinput_devices (void);
 XDevice  *device_is_touchpad      (XDeviceInfo *deviceinfo);
 gboolean  touchpad_is_present     (void);
 
-//G_END_DECLS
+G_END_DECLS
 
 #endif /* __USD_INPUT_HELPER_H */

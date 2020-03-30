@@ -6,10 +6,10 @@
       <arg name="key" type="s" direction="out"/>
     </signal>
     <method name="grabMediaPlayerKeys">
-      <arg type="b" direction="out"/>
+      <arg type="i" direction="out"/>
     </method>
     <method name="releaseMediaPlayerKeys">
-      <arg type="b" direction="out"/>
+      <arg type="i" direction="out"/>
     </method>
   </interface>
 </node>

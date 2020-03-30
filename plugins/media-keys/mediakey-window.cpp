@@ -1,8 +1,9 @@
 #include "mediakey-window.h"
 
 void action_changed (MediakeyWindow& window);
+void volume_controls_set_visible (MediakeyWindow& window, bool visible);
 
-MediakeyWindow::MediakeyWindow(QWidget *parent) : QWidget(parent)
+MediakeyWindow::MediakeyWindow(QWidget *parent) : BaseWindow(parent)
 {
 
 }
@@ -13,13 +14,18 @@ void MediakeyWindow::setAction(MediakeyWindow::MWAction& action)
         mAction = action;
         action_changed (*this);
     } else {
-        window_update_and_hide (*this);
+        updateAndHide();
     }
+}
+
+void MediakeyWindow::setActionCustom(QString iconName, bool showLevel)
+{
+
 }
 
 void action_changed (MediakeyWindow& window)
 {
-    if (!window_is_composited(window)) {
+    if (!window.isComposited()) {
         switch (window.mAction) {
         case MediakeyWindow::MWACTION_VOLUME:
             volume_controls_set_visible (window, true);
@@ -36,5 +42,18 @@ void action_changed (MediakeyWindow& window)
         default:
             break;
         }
+    }
+}
+
+void volume_controls_set_visible (MediakeyWindow& window, bool visible)
+{
+    if (nullptr == window.mProgress) {
+        return;
+    }
+
+    if (visible) {
+        window.mProgress->show();
+    } else {
+        window.mProgress->hide();
     }
 }
